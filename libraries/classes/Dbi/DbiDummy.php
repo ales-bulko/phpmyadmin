@@ -1494,8 +1494,188 @@ class DbiDummy implements DbiExtension
                     ]
                 ],
             ],
-
+            [
+                'query' => "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM information_schema.key_column_usage WHERE referenced_table_name IS NOT NULL AND TABLE_SCHEMA = 'test' AND TABLE_NAME IN ('table1','table2') AND REFERENCED_TABLE_NAME IN ('table1','table2');",
+                'result' => [
+                    [
+                        'TABLE_NAME' => 'table2',
+                        'COLUMN_NAME' => 'idtable2',
+                        'REFERENCED_TABLE_NAME' => 'table1',
+                        'REFERENCED_COLUMN_NAME' => 'idtable1',
+                    ]
+                ],
+            ],
+            [
+                'query' => trim(preg_replace('/  */', ' ', str_replace("\n", ' ',
+                    "
+            SELECT *,
+                `TABLE_SCHEMA`       AS `Db`,
+                `TABLE_NAME`         AS `Name`,
+                `TABLE_TYPE`         AS `TABLE_TYPE`,
+                `ENGINE`             AS `Engine`,
+                `ENGINE`             AS `Type`,
+                `VERSION`            AS `Version`,
+                `ROW_FORMAT`         AS `Row_format`,
+                `TABLE_ROWS`         AS `Rows`,
+                `AVG_ROW_LENGTH`     AS `Avg_row_length`,
+                `DATA_LENGTH`        AS `Data_length`,
+                `MAX_DATA_LENGTH`    AS `Max_data_length`,
+                `INDEX_LENGTH`       AS `Index_length`,
+                `DATA_FREE`          AS `Data_free`,
+                `AUTO_INCREMENT`     AS `Auto_increment`,
+                `CREATE_TIME`        AS `Create_time`,
+                `UPDATE_TIME`        AS `Update_time`,
+                `CHECK_TIME`         AS `Check_time`,
+                `TABLE_COLLATION`    AS `Collation`,
+                `CHECKSUM`           AS `Checksum`,
+                `CREATE_OPTIONS`     AS `Create_options`,
+                `TABLE_COMMENT`      AS `Comment`
+            FROM `information_schema`.`TABLES` t
+            WHERE `TABLE_SCHEMA` 
+                IN ('test')
+                 ORDER BY Data_length DESC LIMIT 2 OFFSET 0"))),
+                'result' => [
+                    [
+                        'TABLE_CATALOG'	=> 'def',
+                        'TABLE_SCHEMA'	=> 'test',
+                        'TABLE_NAME'	=> 'table1',
+                        'TABLE_TYPE'	=> 'BASE TABLE',
+                        'ENGINE'	=> 'InnoDB',
+                        'VERSION'	=> '10',
+                        'ROW_FORMAT'	=> 'Dynamic',
+                        'TABLE_ROWS'	=> '0',
+                        'AVG_ROW_LENGTH'	=> '0',
+                        'DATA_LENGTH'	=> '16384',
+                        'MAX_DATA_LENGTH'	=> '0',
+                        'INDEX_LENGTH'	=> '0',
+                        'DATA_FREE'	=> '0',
+                        'AUTO_INCREMENT'	=> '',
+                        'CREATE_TIME'	=> '10/16/2018 18:33',
+                        'UPDATE_TIME'	=> '',
+                        'CHECK_TIME'	=> '',
+                        'TABLE_COLLATION'	=> 'utf8mb4_0900_ai_ci',
+                        'CHECKSUM'	=> '',
+                        'CREATE_OPTIONS'	=> '',
+                        'TABLE_COMMENT'	=> 'table 1',
+                        'Db'	=> 'test',
+                        'Name'	=> 'table1',
+                        'Engine'	=> 'InnoDB',
+                        'Type'	=> 'InnoDB',
+                        'Version'	=> '10',
+                        'Row_format'	=> 'Dynamic',
+                        'Rows'	=> '0',
+                        'Avg_row_length'	=> '0',
+                        'Data_length'	=> '16384',
+                        'Max_data_length'	=> '0',
+                        'Index_length'	=> '0',
+                        'Data_free'	=> '0',
+                        'Auto_increment'	=> '',
+                        'Create_time'	=> '10/16/2018 18:33',
+                        'Update_time'	=> '',
+                        'Check_time'	=> '',
+                        'Collation'	=> 'utf8mb4_0900_ai_ci',
+                        'Checksum'	=> '',
+                        'Create_options'	=> '',
+                        'Comment'	=> 'table 1',
+                    ],
+                    [
+                        'TABLE_CATALOG' => 'def',
+                        'TABLE_SCHEMA' => 'test',
+                        'TABLE_NAME' => 'fks',
+                        'TABLE_TYPE' => 'BASE TABLE',
+                        'ENGINE' => 'InnoDB',
+                        'VERSION' => '10',
+                        'ROW_FORMAT' => 'Dynamic',
+                        'TABLE_ROWS' => '0',
+                        'AVG_ROW_LENGTH' => '0',
+                        'DATA_LENGTH' => '16384',
+                        'MAX_DATA_LENGTH' => '0',
+                        'INDEX_LENGTH' => '16384',
+                        'DATA_FREE' => '0',
+                        'AUTO_INCREMENT' => '',
+                        'CREATE_TIME' => '11/7/2018 10:57',
+                        'UPDATE_TIME' => '',
+                        'CHECK_TIME' => '',
+                        'TABLE_COLLATION' => 'utf8mb4_0900_ai_ci',
+                        'CHECKSUM' => '',
+                        'CREATE_OPTIONS' => '',
+                        'TABLE_COMMENT' => '',
+                        'Db' => 'test',
+                        'Name' => 'fks',
+                        'Engine' => 'InnoDB',
+                        'Type' => 'InnoDB',
+                        'Version' => '10',
+                        'Row_format' => 'Dynamic',
+                        'Rows' => '0',
+                        'Avg_row_length' => '0',
+                        'Data_length' => '16384',
+                        'Max_data_length' => '0',
+                        'Index_length' => '16384',
+                        'Data_free' => '0',
+                        'Auto_increment' => '',
+                        'Create_time' => '11/7/2018 10:57',
+                        'Update_time' => '',
+                        'Check_time' => '',
+                        'Collation' => 'utf8mb4_0900_ai_ci',
+                        'Checksum' => '',
+                        'Create_options' => '',
+                        'Comment' => '',
+                    ]
+                ],
+            ],
+            [
+                'query' => trim(preg_replace('/  */', ' ', str_replace("\n", ' ',
+                    "SELECT *,
+                             `TABLE_SCHEMA` AS `Db`,
+                             `TABLE_NAME` AS `Name`,
+                             `TABLE_TYPE` AS `TABLE_TYPE`,
+                             `ENGINE` AS `Engine`,
+                             `ENGINE` AS `Type`,
+                             `VERSION` AS `Version`,
+                             `ROW_FORMAT` AS `Row_format`,
+                             `TABLE_ROWS` AS `Rows`,
+                             `AVG_ROW_LENGTH` AS `Avg_row_length`,
+                             `DATA_LENGTH` AS `Data_length`,
+                             `MAX_DATA_LENGTH` AS `Max_data_length`,
+                             `INDEX_LENGTH` AS `Index_length`,
+                             `DATA_FREE` AS `Data_free`,
+                             `AUTO_INCREMENT` AS `Auto_increment`,
+                             `CREATE_TIME` AS `Create_time`,
+                             `UPDATE_TIME` AS `Update_time`,
+                             `CHECK_TIME` AS `Check_time`,
+                             `TABLE_COLLATION` AS `Collation`,
+                             `CHECKSUM` AS `Checksum`,
+                             `CREATE_OPTIONS` AS `Create_options`,
+                             `TABLE_COMMENT` AS `Comment`
+                             FROM `information_schema`.`TABLES` t
+                             WHERE `TABLE_SCHEMA` 
+                             IN ('test')
+                             ORDER BY Name ASC"))),
+                'result' => [
+                    [
+                        'TABLE_CATALOG'	=> 'def',
+                        'TABLE_SCHEMA'	=> 'test',
+                        'TABLE_NAME'	=> 'table1',
+                    ],
+                    [
+                        'TABLE_CATALOG' => 'def',
+                        'TABLE_SCHEMA' => 'test',
+                        'TABLE_NAME' => 'fks',
+                    ]
+                ]
+            ],
+            [
+                'query' => 'SELECT 1',
+                'result' => [
+                    '1' => '1'
+                ]
+            ],
+            [
+                'query' => 'SHOW COUNT(*) WARNINGS',
+                'result' => ['0']
+            ]
         ];
+
         /**
          * Current database.
          */

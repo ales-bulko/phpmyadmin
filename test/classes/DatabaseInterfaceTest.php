@@ -13,6 +13,7 @@ use PhpMyAdmin\DatabaseInterface;
 use PhpMyAdmin\Dbi\DbiDummy;
 use PhpMyAdmin\Tests\PmaTestCase;
 use PhpMyAdmin\Util;
+use ReflectionClass;
 
 /**
  * Tests basic functionality of dummy dbi driver
@@ -36,6 +37,23 @@ class DatabaseInterfaceTest extends PmaTestCase
         $GLOBALS['server'] = 0;
         $extension = new DbiDummy();
         $this->_dbi = new DatabaseInterface($extension);
+    }
+
+    /**
+     * Get private method by setting visibility to public.
+     *
+     * @param string $name method name
+     * @param array $params parameters for the invocation
+     *
+     * @return mixed the output from the private method.
+     * @throws \ReflectionException
+     */
+    private function getPrivateMethod($name)
+    {
+        $class = new ReflectionClass(DatabaseInterface::class);
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+        return $method;
     }
 
     /**
@@ -534,5 +552,180 @@ class DatabaseInterfaceTest extends PmaTestCase
                 'REFERENCED_COLUMN_NAME' => 'idtable1',
             ]
         ], $this->_dbi->getForeignKeyConstrains('test',['table1', 'table2']));
+    }
+
+    /**
+     * Tests for DBI::getTablesFull() method.
+     *
+     * @return void
+     * @test
+     */
+    public function testGetTablesFull()
+    {
+        $GLOBALS['cfg']['Server']['DisableIS'] = false;
+        $GLOBALS['cfg']['MaxTableList'] = 2;
+        $tables = $this->_dbi->getTablesFull(
+            $database = 'test',
+            $table = '',
+            $tbl_is_group = false,
+            $limit_offset = 0,
+            $limit_count = true,
+            $sort_by = 'Data_length',
+            $sort_order = 'DESC',
+            $table_type = null,
+            $link = DatabaseInterface::CONNECT_USER);
+        $this->assertEquals($tables, [
+            'fks' => [
+                'TABLE_CATALOG' => 'def',
+                'TABLE_SCHEMA' => 'test',
+                'TABLE_NAME' => 'fks',
+                'TABLE_TYPE' => 'BASE TABLE',
+                'ENGINE' => 'InnoDB',
+                'VERSION' => '10',
+                'ROW_FORMAT' => 'Dynamic',
+                'TABLE_ROWS' => '0',
+                'AVG_ROW_LENGTH' => '0',
+                'DATA_LENGTH' => '16384',
+                'MAX_DATA_LENGTH' => '0',
+                'INDEX_LENGTH' => '16384',
+                'DATA_FREE' => '0',
+                'AUTO_INCREMENT' => '',
+                'CREATE_TIME' => '11/7/2018 10:57',
+                'UPDATE_TIME' => '',
+                'CHECK_TIME' => '',
+                'TABLE_COLLATION' => 'utf8mb4_0900_ai_ci',
+                'CHECKSUM' => '',
+                'CREATE_OPTIONS' => '',
+                'TABLE_COMMENT' => '',
+                'Db' => 'test',
+                'Name' => 'fks',
+                'Engine' => 'InnoDB',
+                'Type' => 'InnoDB',
+                'Version' => '10',
+                'Row_format' => 'Dynamic',
+                'Rows' => '0',
+                'Avg_row_length' => '0',
+                'Data_length' => '16384',
+                'Max_data_length' => '0',
+                'Index_length' => '16384',
+                'Data_free' => '0',
+                'Auto_increment' => '',
+                'Create_time' => '11/7/2018 10:57',
+                'Update_time' => '',
+                'Check_time' => '',
+                'Collation' => 'utf8mb4_0900_ai_ci',
+                'Checksum' => '',
+                'Create_options' => '',
+                'Comment' => '',
+            ],
+            'table1' => [
+
+                'TABLE_CATALOG'	=> 'def',
+                'TABLE_SCHEMA'	=> 'test',
+                'TABLE_NAME'	=> 'table1',
+                'TABLE_TYPE'	=> 'BASE TABLE',
+                'ENGINE'	=> 'InnoDB',
+                'VERSION'	=> '10',
+                'ROW_FORMAT'	=> 'Dynamic',
+                'TABLE_ROWS'	=> '0',
+                'AVG_ROW_LENGTH'	=> '0',
+                'DATA_LENGTH'	=> '16384',
+                'MAX_DATA_LENGTH'	=> '0',
+                'INDEX_LENGTH'	=> '0',
+                'DATA_FREE'	=> '0',
+                'AUTO_INCREMENT'	=> '',
+                'CREATE_TIME'	=> '10/16/2018 18:33',
+                'UPDATE_TIME'	=> '',
+                'CHECK_TIME'	=> '',
+                'TABLE_COLLATION'	=> 'utf8mb4_0900_ai_ci',
+                'CHECKSUM'	=> '',
+                'CREATE_OPTIONS'	=> '',
+                'TABLE_COMMENT'	=> 'table 1',
+                'Db'	=> 'test',
+                'Name'	=> 'table1',
+                'Engine'	=> 'InnoDB',
+                'Type'	=> 'InnoDB',
+                'Version'	=> '10',
+                'Row_format'	=> 'Dynamic',
+                'Rows'	=> '0',
+                'Avg_row_length'	=> '0',
+                'Data_length'	=> '16384',
+                'Max_data_length'	=> '0',
+                'Index_length'	=> '0',
+                'Data_free'	=> '0',
+                'Auto_increment'	=> '',
+                'Create_time'	=> '10/16/2018 18:33',
+                'Update_time'	=> '',
+                'Check_time'	=> '',
+                'Collation'	=> 'utf8mb4_0900_ai_ci',
+                'Checksum'	=> '',
+                'Create_options'	=> '',
+                'Comment'	=> 'table 1',
+            ],
+        ]);
+    }
+
+    /**
+     * Tests for DBI::checkDbExtension() method.
+     *
+     * @return void
+     * @test
+     */
+    public function testCheckDbExtension()
+    {
+        $this->assertTrue( $this->_dbi->checkDbExtension());
+    }
+
+    /**
+     * Tests for DBI::getCachedTableContent() method.
+     *
+     * @return void
+     * @test
+     */
+    public function testCheckTableCache()
+    {
+        $GLOBALS['cfg']['Server']['DisableIS'] = false;
+        $tables = $this->_dbi->getTablesFull($database = 'test');
+        $cached_tables = $this->_dbi->getCachedTableContent(['test']);
+        $this->assertEquals($tables, $cached_tables);
+        $this->_dbi->clearTableCache();
+        $cached_tables = $this->_dbi->getCachedTableContent([]);
+        $this->assertEquals([], $cached_tables);
+    }
+
+    /**
+     * Tests for DBI::tryQuery() method with debug.
+     *
+     * @return void
+     * @test
+     */
+    public function testTryQuery()
+    {
+        $GLOBALS['cfg']['DBG']['sql'] = true;
+        $GLOBALS['cfg']['DBG']['sqllog'] = true;
+        $one = $this->_dbi->tryQuery(
+            "SELECT 1",
+            $link = DatabaseInterface::CONNECT_USER,
+            $options = DatabaseInterface::QUERY_STORE,
+            $cache_affected_rows = true);
+        $this->assertEquals($_SESSION['debug']['queries'][0]['query'], 'SELECT 1');
+    }
+
+    /**
+     * Tests for DBI::tryQuery() method with debug.
+     *
+     * @return void
+     * @test
+     * @throws \ReflectionException
+     */
+    public function test_getTableCondition()
+    {
+        $method = $this->getPrivateMethod('_getTableCondition');
+        $result = $method->invokeArgs($this->_dbi, [
+            ['car','manuf'],
+            true,
+            'view'
+        ]);
+        $this->assertEquals($result,'AND t.`TABLE_NAME`  IN (\'car\', \'manuf\') AND t.`TABLE_TYPE` != \'BASE TABLE\'');
     }
 }
